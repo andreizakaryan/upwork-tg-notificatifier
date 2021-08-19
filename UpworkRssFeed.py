@@ -7,6 +7,16 @@ class UpworkRssFeed:
         self.url = url
         self.db_path = db_path
 
+    def filter_jobs(self, jobs, jfilters):
+        filtered = []
+        for job in jobs:
+            for jfilter in jfilters:
+                if job['budget']['hourly'] and job['budget']['hourly'][1] >= jfilter['min_budget']['hourly']:
+                    filtered.append(job)
+                if job['budget']['fixed'] and job['budget']['fixed'] >= jfilter['min_budget']['fixed']:
+                    filtered.append(job)
+        return filtered
+
     def get_new_jobs(self):
         jobs = self.parse_feed()
         new_jobs = []
@@ -17,8 +27,6 @@ class UpworkRssFeed:
                 parsed_jobs.append(job['link'])
         self._write_parsed_jobs(parsed_jobs)
         return new_jobs
-
-
 
     def parse_feed(self):
         jobs = []
@@ -42,9 +50,15 @@ class UpworkRssFeed:
         hr = '<b>Hourly Range</b>:'
         fr = '<b>Budget</b>:'
         if hr in description:
-            budget['hourly'] = description.split(hr)[-1].split('<br />')[0].strip()
+            hourly = description.split(hr)[-1].split('<br />')[0].strip()
+            budget['hourly_str'] = hourly
+            hourly = hourly.replace('$', '').replace(',', '').split('-')
+            budget['hourly'] = [float(price.strip()) for price in hourly]
         if fr in description:
-            budget['fixed'] = description.split(fr)[-1].split('<br />')[0].strip()
+            fixed = description.split(fr)[-1].split('<br />')[0].strip()
+            budget['fixed_str'] = fixed 
+            fixed = fixed.replace('$', '').replace(',', '')
+            budget['fixed'] = int(fixed) 
         return budget
     
     def _get_parsed_jobs(self):
