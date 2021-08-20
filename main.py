@@ -5,11 +5,12 @@ from UpworkRssFeed import UpworkRssFeed
 from TG import TG
 
 
-with open('my_config.json') as file:
+with open('config.json') as file:
     config = json.load(file)
 
 tg = TG(config['api_key'], config['chat_id'])
 parser = UpworkRssFeed(config['rss_url'], config['db_path'])
+
 
 while True:
     try:
@@ -23,7 +24,8 @@ while True:
                 budget = f"*Fixed*: {job['budget']['fixed_str']}"
             if job['budget']['hourly']:
                 budget = f"*Hourly Rate*: {job['budget']['hourly_str']}"
-            messages.append(f"[New Job:]({job['link']})\n_{job['title']}_\n{budget}")
+            category = f"*Category*: {job['category'].reaplce('&amp;', '&')}"
+            messages.append(f"[New Job:]({job['link']})\n_{job['title']}_\n{category}\n{budget}")
         for message in messages:
             tg.notify(message)
     except:

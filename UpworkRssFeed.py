@@ -11,10 +11,22 @@ class UpworkRssFeed:
         filtered = []
         for job in jobs:
             for jfilter in jfilters:
+                if 'categories' in jfilter:
+                    if job['category'] not in jfilter['categories']:
+                        continue
+                if 'skills' in jfilter:
+                    for skill in job['skills']:
+                        if skill in jfilter['skills']:
+                            break
+                    else:
+                        continue
+                print(job['category'])
                 if job['budget']['hourly'] and job['budget']['hourly'][1] >= jfilter['min_budget']['hourly']:
                     filtered.append(job)
+                    break
                 if job['budget']['fixed'] and job['budget']['fixed'] >= jfilter['min_budget']['fixed']:
                     filtered.append(job)
+                    break
         return filtered
 
     def get_new_jobs(self):
@@ -37,10 +49,16 @@ class UpworkRssFeed:
         for item in itemlist:
             description = item.getElementsByTagName('description')[0].firstChild.nodeValue
             budget = self._extract_budget(description)            
+            category = description.split('<b>Category</b>:')[-1].split('<br />')[0]
+            category = category.strip()
+            skills = description.split('<b>Skills</b>:')[-1].split('<br />')[0].split(',')
+            skills = [skill.strip() for skill in skills]
             job = {
                 'title': item.getElementsByTagName('title')[0].firstChild.nodeValue,
                 'link': item.getElementsByTagName('link')[0].firstChild.nodeValue,
-                'budget': budget
+                'budget': budget,
+                'skills': skills,
+                'category': category
             }            
             jobs.append(job)
         return jobs
