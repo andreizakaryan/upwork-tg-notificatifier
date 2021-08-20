@@ -24,7 +24,7 @@ while True:
                 budget = f"*Fixed*: {job['budget']['fixed_str']}"
             if job['budget']['hourly']:
                 budget = f"*Hourly Rate*: {job['budget']['hourly_str']}"
-            category = f"*Category*: {job['category'].reaplce('&amp;', '&')}"
+            category = f"*Category*: {job['category'].replace('&amp;', '&')}"
             messages.append(f"[New Job:]({job['link']})\n_{job['title']}_\n{category}\n{budget}")
         for message in messages:
             tg.notify(message)
