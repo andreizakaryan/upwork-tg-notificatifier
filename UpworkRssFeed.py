@@ -20,7 +20,6 @@ class UpworkRssFeed:
                             break
                     else:
                         continue
-                print(job['category'])
                 if job['budget']['hourly'] and job['budget']['hourly'][1] >= jfilter['min_budget']['hourly']:
                     filtered.append(job)
                     break
